@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCARA Robot Arm with Three.js</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Create the scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xeeeeee);
+
+        // Create the camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Create the renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add lighting
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // Function to create arm segments
+        function createArmSegment(width, height, depth, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color });
+            return new THREE.Mesh(geometry, material);
+        }
+
+        // Create base
+        const base = createArmSegment(2, 0.5, 2, 0x888888);
+        scene.add(base);
+
+        // Create arm segments
+        const arm1 = createArmSegment(1, 0.3, 1, 0xff0000);
+        arm1.position.y = 0.65;
+        base.add(arm1);
+
+        const arm2 = createArmSegment(1, 0.3, 1, 0x00ff00);
+        arm2.position.y = 1.25;
+        arm1.add(arm2);
+
+        const arm3 = createArmSegment(1, 0.3, 1, 0x0000ff);
+        arm3.position.y = 1.25;
+        arm2.add(arm3);
+
+        // Create end-effector
+        const endEffector = createArmSegment(0.5, 0.5, 0.5, 0xffff00);
+        endEffector.position.y = 0.75;
+        arm3.add(endEffector);
+
+        // Animation function
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate the arm segments
+            arm1.rotation.z += 0.01;
+            arm2.rotation.z += 0.01;
+            arm3.rotation.z += 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
